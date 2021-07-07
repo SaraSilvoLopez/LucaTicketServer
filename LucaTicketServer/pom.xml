@@ -12,7 +12,7 @@
 	<artifactId>LucaTicketServer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>LucaTicketServer</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Server Eureka for LucaTicket</description>
 	<properties>
 		<java.version>11</java.version>
 		<spring-cloud.version>Hoxton.SR11</spring-cloud.version>
