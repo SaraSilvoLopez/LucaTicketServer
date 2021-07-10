@@ -17,7 +17,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  *
  * @author Sara Silvo
  *
- * @date 7 jul. 2021
+ * @date 10 jul. 2021
  * 
  * @version 1.0
  */
