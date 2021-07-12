@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>LucaTicketUsuarioService</artifactId>
+	<artifactId>LucaTicketPasarelaPagos</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>LucaTicketUsuarioService</name>
+	<name>LucaTicketPasarelaPagos</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
@@ -22,14 +22,23 @@
 	</properties>
 	<dependencies>
 		<dependency>
+
 			<groupId>io.springfox</groupId>
+
 			<artifactId>springfox-swagger2</artifactId>
+
 			<version>${spring.fox.version}</version>
+
 		</dependency>
+
 		<dependency>
+
 			<groupId>io.springfox</groupId>
+
 			<artifactId>springfox-swagger-ui</artifactId>
+
 			<version>${spring.fox.version}</version>
+
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -43,11 +52,17 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter</artifactId>
 		</dependency>
-		<dependency>
+			<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -59,10 +74,6 @@
 					<artifactId>junit-vintage-engine</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

@@ -53,5 +53,5 @@ public class LucaTicketCompraApplication {
 	public EventoService eventoService() {
 		return new EventoServiceRemote(EVENTOS_SERVICE_URL);
 	}
-
+	
 }

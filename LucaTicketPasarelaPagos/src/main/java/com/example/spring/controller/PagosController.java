@@ -4,9 +4,12 @@ import java.util.logging.Logger;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.spring.model.PagoRequest;
 
 /**
  * @Project LucaTicketPasarelaPagos
@@ -35,11 +38,10 @@ public class PagosController {
 	 * @param numTarjeta
 	 * @return ResponseEntity.ok()
 	 */
-	@PostMapping("/")
-	public ResponseEntity<?> pago(@RequestParam("mail") String mail, @RequestParam("password") String password, 
-			@RequestParam("eventoId") String eventoId, @RequestParam("numTarjeta") String numTarjeta) {
+	@PostMapping("/pago")
+	public ResponseEntity<String> pago(@RequestBody PagoRequest pagoRequest) {
 		logger.info("---- Accediendo a la pasarela de pagos");
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok("Pago aceptado");
 	}
 
 	

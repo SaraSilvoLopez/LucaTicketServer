@@ -1,8 +1,10 @@
 package com.example.spring.service;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,7 +21,7 @@ import com.example.spring.model.Usuario;
  * 
  * @version 1.0
  */
-@Repository
+@Component
 public class UsuarioServiceRemote implements UsuarioService {
 
 private static final Logger logger = Logger.getLogger("");
@@ -42,6 +44,17 @@ private static final Logger logger = Logger.getLogger("");
 		logger.info("----- [getUsuario]: serviceurl: " + this.serviceUrl);
 		Usuario usuario = restTemplate.getForObject(serviceUrl + "/usuarios/{id}", Usuario.class);
 		return usuario;
+	}
+
+	@Override
+	public Optional<Usuario> findById(int id) {
+		return null;
+	}
+
+	@Override
+	public Optional<Usuario> findByMail(String Mail) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

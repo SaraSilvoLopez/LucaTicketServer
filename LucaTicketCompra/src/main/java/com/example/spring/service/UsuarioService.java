@@ -1,5 +1,7 @@
 package com.example.spring.service;
 
+import java.util.Optional;
+
 import com.example.spring.model.Usuario;
 
 /**
@@ -16,4 +18,8 @@ import com.example.spring.model.Usuario;
 public interface UsuarioService {
 	
 	public Usuario getUsuario(int id);
+	
+	public Optional<Usuario> findById(int id);
+	
+	public Optional<Usuario> findByMail(String Mail);
 }
