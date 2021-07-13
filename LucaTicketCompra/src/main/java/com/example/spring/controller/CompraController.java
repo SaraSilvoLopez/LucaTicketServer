@@ -59,7 +59,7 @@ public class CompraController {
 		RestTemplate restTemplate = new RestTemplate();
 		
 		ResponseEntity<JwtUsuarioRespuesta> loginResponse = null;
-		String pagoResponse = null;
+		ResponseEntity<?> pagoResponse = null;
 		ResponseEntity<?> registroResponse = null;
 
 		// llamada a usuarios para el login
@@ -72,20 +72,24 @@ public class CompraController {
 		} catch (Exception e) {
 			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
 		}
-		//if (loginResponse.getStatusCode().equals(HttpStatus.OK)) {
+		if (loginResponse.getStatusCode().equals(HttpStatus.OK)) {
 			PagoRequest pagoRequest = new PagoRequest();
-			pagoRequest.builder().nombre(loginResponse.getBody().getNombre())
-					.apellido(loginResponse.getBody().getApellido()).numTarjeta(numTarjeta)
-					.nombreEvento("evento comprado en LucaTicket").importe(0).build();
+			pagoRequest.setNombre(loginResponse.getBody().getNombre());
+			pagoRequest.setApellido(loginResponse.getBody().getApellido());
+			pagoRequest.setNumTarjeta(numTarjeta);
+			pagoRequest.setNombreEvento("Evento comprado en LucaTicket");
+			pagoRequest.setImporte(100);
 			try {
 				pagoResponse = pago(pagoRequest);
 			} catch (Exception e) {
 				return new ResponseEntity<>("No se ha podido realizar el pago", HttpStatus.BAD_REQUEST);
 			}
 
-			if (pagoResponse.equals("Pago aceptado")) {
+			if (pagoResponse.getStatusCode().equals(HttpStatus.OK))  {
 				Entrada entrada = new Entrada();
-				entrada.builder().usuarioId(loginResponse.getBody().getMail()).eventoId(eventoId).build();
+				entrada.setUsuarioId(loginResponse.getBody().getMail());
+				entrada.setEventoId(eventoId);
+				System.out.println(entrada);
 				try {
 					registroResponse = addEntrada(entrada);
 					return new ResponseEntity<>("La compra se ha realizado con exito",HttpStatus.OK);
@@ -93,7 +97,7 @@ public class CompraController {
 					return new ResponseEntity<>("No se ha podido realizar el registro de la entrada",
 							HttpStatus.BAD_REQUEST);
 				}
-			//}
+			}
 	
 	}
 		return new ResponseEntity<>("No se ha podido realizar la compra", HttpStatus.BAD_REQUEST);
@@ -115,15 +119,16 @@ public class CompraController {
 	}
 
 	@PostMapping("/entradas/pago")
-	public String pago(@RequestBody PagoRequest pagoRequest) {
+	public ResponseEntity<?> pago(@RequestBody PagoRequest pagoRequest) {
 		RestTemplate restTemplate = new RestTemplate();
 		try {
 			String pagoBody = getBody(pagoRequest);
 			HttpHeaders pagoHeaders = getHeaders();
 			HttpEntity<String> pagoEntity = new HttpEntity<String>(pagoBody, pagoHeaders);
-			return restTemplate.postForObject(PAGO_URL, pagoEntity, String.class);
+			String response = restTemplate.postForObject(PAGO_URL, pagoEntity, String.class);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception ex) {
-			return "No se ha podido realizar el pago";
+			return new ResponseEntity<>("No se ha podido realizar el pago", HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -139,13 +144,25 @@ public class CompraController {
 
 	
 	  @PostMapping("/entradas/misentradas") 
-	  public List<Entrada> misEntradas(@RequestParam("mail") String mail, @RequestParam("password") String password) { 
-	  //login contra usuarios directamente(mail, password);
+	  public ResponseEntity<?> misEntradas(@RequestParam("mail") String mail, @RequestParam("password") String password) {
+		  RestTemplate restTemplate = new RestTemplate();
+		//login contra usuarios directamente(mail, password);
+		  ResponseEntity<JwtUsuarioRespuesta> loginResponse = null;
+		  LoginRequest loginRequest = new LoginRequest();
+			loginRequest.setMail(mail);
+			loginRequest.setContrasenia(password);
+		  try {
+				loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
+			} catch (Exception e) {
+				return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
+			}
 	  //conseguir usuarioId 
+		  
 		  List<Entrada> entradas= new ArrayList(); 
 	  //entradas =
 	  //EntradasRepo.findByUsuarioId(); 
-	  return entradas; 
+		  //return new ResponseEntity<>(entradas, HttpStatus.OK);
+		  return new ResponseEntity<>("No se ha podido acceder al apartado Mis Entradas", HttpStatus.BAD_REQUEST);
 	  }
 	 
 
