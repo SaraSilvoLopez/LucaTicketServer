@@ -16,8 +16,8 @@ public class JwtUsuarioRespuesta extends UsuarioDto {
 	private String token;
 	
 	@Builder(builderMethodName="jwtUsuarioRespuestaBuilder")
-	public JwtUsuarioRespuesta(String nombre, String apellido, String mail, String contrasenia, LocalDateTime fecha_alta, String rol, String token) {
-		super(nombre, apellido, mail, contrasenia, fecha_alta, rol);
+	public JwtUsuarioRespuesta(int id, String nombre, String apellido, String mail, String contrasenia, String fecha_alta, String rol, String token) {
+		super(id, nombre, apellido, mail, contrasenia, fecha_alta, rol);
 		this.token = token;
 	}
 	

@@ -12,11 +12,12 @@ import lombok.Setter;
 @NoArgsConstructor @AllArgsConstructor @Builder
 public class UsuarioDto {
 	
+	private int id;
 	private String nombre;
 	private String apellido;
 	private String mail;
 	private String contrasenia;
-	private LocalDateTime fecha_alta;
+	private String fecha_alta;
 	private String rol;
 
 }

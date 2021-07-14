@@ -41,6 +41,7 @@ public class PagosController {
 	@PostMapping("/pago")
 	public ResponseEntity<String> pago(@RequestBody PagoRequest pagoRequest) {
 		logger.info("---- Accediendo a la pasarela de pagos");
+		logger.info(pagoRequest.toString());
 		return ResponseEntity.ok("Pago aceptado");
 	}
 

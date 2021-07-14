@@ -31,7 +31,20 @@ public class Entrada {
 	@MongoId(FieldType.OBJECT_ID)
 	private String id;
 	@Indexed
-	private String usuarioId;
+	private int usuarioId;
 	private String eventoId;
+	
+	/**
+	 * Constructor de la clase Entrada
+	 *
+	 * @param usuarioId
+	 * @param eventoId
+	 */
+	public Entrada(int usuarioId, String eventoId) {
+		super();
+		this.usuarioId = usuarioId;
+		this.eventoId = eventoId;
+	}
+	
 	
 }

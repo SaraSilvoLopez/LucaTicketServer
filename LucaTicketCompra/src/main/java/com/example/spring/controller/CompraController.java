@@ -19,11 +19,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.spring.exception.UsuarioNoEncontradoException;
 import com.example.spring.model.Entrada;
+import com.example.spring.model.EntradaRespuesta;
+import com.example.spring.model.Evento;
+import com.example.spring.model.Usuario;
 import com.example.spring.repository.EntradaRepository;
+import com.example.spring.security.JwtTokenProvider;
 import com.example.spring.security.JwtUsuarioRespuesta;
 import com.example.spring.security.LoginRequest;
 import com.example.spring.security.PagoRequest;
+import com.example.spring.service.EventoService;
+import com.example.spring.service.UsuarioService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -46,19 +53,23 @@ public class CompraController {
 
 	@Autowired
 	private EntradaRepository repo;
+	@Autowired
+	private EventoService eventos;
+	@Autowired
+	private UsuarioService usuarios;
 
 	private static final String LOGIN_USUARIO_URL = "http://localhost:2222/usuarios/login";
 	private static final String LOGIN_URL = "http://localhost:6666/entradas/login";
 	private static final String PAGO_URL = "http://localhost:8080/pago";
 	private static final String REGISTRO_URL = "http://localhost:6666/entradas/registro";
-	private static final String GREETINGS_URL = "http://localhost:9999/greetingAdmin";
 
 	@PostMapping("/entradas/compra")
 	public ResponseEntity<?> compra(@RequestParam("mail") String mail, @RequestParam("password") String password,
-			@RequestParam("eventoId") String eventoId, @RequestParam("numTarjeta") int numTarjeta) throws JsonProcessingException {
+			@RequestParam("eventoId") String eventoId, @RequestParam("numTarjeta") int numTarjeta)
+			throws JsonProcessingException {
 
 		RestTemplate restTemplate = new RestTemplate();
-		
+
 		ResponseEntity<JwtUsuarioRespuesta> loginResponse = null;
 		ResponseEntity<?> pagoResponse = null;
 		ResponseEntity<?> registroResponse = null;
@@ -67,60 +78,62 @@ public class CompraController {
 		LoginRequest loginRequest = new LoginRequest();
 		loginRequest.setMail(mail);
 		loginRequest.setContrasenia(password);
-		
+
 		try {
 			loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
 		} catch (Exception e) {
 			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
 		}
 		if (loginResponse.getStatusCode().equals(HttpStatus.OK)) {
+
+			// llamada a pasarela de pagos
 			PagoRequest pagoRequest = new PagoRequest();
 			pagoRequest.setNombre(loginResponse.getBody().getNombre());
 			pagoRequest.setApellido(loginResponse.getBody().getApellido());
 			pagoRequest.setNumTarjeta(numTarjeta);
-			pagoRequest.setNombreEvento("Evento comprado en LucaTicket");
-			pagoRequest.setImporte(100);
+			pagoRequest.setNombreEvento(eventos.getEvento(eventoId).getNombre());
+			pagoRequest.setImporte(eventos.getEvento(eventoId).getRangoPrecios());
+
 			try {
 				pagoResponse = pago(pagoRequest);
 			} catch (Exception e) {
 				return new ResponseEntity<>("No se ha podido realizar el pago", HttpStatus.BAD_REQUEST);
 			}
 
-			if (pagoResponse.getStatusCode().equals(HttpStatus.OK))  {
+			if (pagoResponse.getStatusCode().equals(HttpStatus.OK)) {
+
+				// registro de la entrada
 				Entrada entrada = new Entrada();
-				entrada.setUsuarioId(loginResponse.getBody().getMail());
+				entrada.setUsuarioId(loginResponse.getBody().getId());
 				entrada.setEventoId(eventoId);
-				
-				String registroBody = getBody(entrada);
-				String token = "Bearer " + loginResponse.getBody().getToken();
-				HttpHeaders registroHeaders = getHeaders();
-				registroHeaders.set("Authorization", token);
-				HttpEntity<String> registroEntity = new HttpEntity<String>(registroBody, registroHeaders);
-				registroResponse = restTemplate.postForEntity(REGISTRO_URL, registroEntity, Entrada.class);
-				
+
 				try {
-					//registroResponse = addEntrada(entrada);
-					return new ResponseEntity<>("La compra se ha realizado con exito",HttpStatus.OK);
+					String registroBody = getBody(entrada);
+					String token = "Bearer " + loginResponse.getBody().getToken();
+					HttpHeaders registroHeaders = getHeaders();
+					registroHeaders.set("Authorization", token);
+					HttpEntity<String> registroEntity = new HttpEntity<String>(registroBody, registroHeaders);
+					registroResponse = restTemplate.postForEntity(REGISTRO_URL, registroEntity, Entrada.class);
+					return new ResponseEntity<>("La compra se ha realizado con exito", HttpStatus.OK);
 				} catch (Exception e) {
 					return new ResponseEntity<>("No se ha podido realizar el registro de la entrada",
 							HttpStatus.BAD_REQUEST);
 				}
 			}
-			
-	
-	}
+
+		}
 		return new ResponseEntity<>("No se ha podido realizar la compra", HttpStatus.BAD_REQUEST);
 	}
 
 	@PostMapping("/entradas/login")
-	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest)
-			throws JsonProcessingException {
+	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) throws JsonProcessingException {
 		RestTemplate restTemplate = new RestTemplate();
 		try {
 			String loginBody = getBody(loginRequest);
 			HttpHeaders loginHeaders = getHeaders();
 			HttpEntity<String> loginEntity = new HttpEntity<String>(loginBody, loginHeaders);
-			JwtUsuarioRespuesta response = restTemplate.postForObject(LOGIN_USUARIO_URL, loginEntity, JwtUsuarioRespuesta.class);
+			JwtUsuarioRespuesta response = restTemplate.postForObject(LOGIN_USUARIO_URL, loginEntity,
+					JwtUsuarioRespuesta.class);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
@@ -144,82 +157,43 @@ public class CompraController {
 	@PostMapping("/entradas/registro")
 	public ResponseEntity<?> addEntrada(@RequestBody Entrada entrada) {
 		try {
-			
 			repo.save(entrada);
 			return ResponseEntity.ok(entrada);
 		} catch (Exception ex) {
 			return new ResponseEntity<>("No se ha podido realizar el registro de la entrada", HttpStatus.BAD_REQUEST);
 		}
 	}
-	
-	
-	/*
-	@PostMapping("/entradas/registro")
-	public ResponseEntity<?> addEntrada(@RequestBody LoginRequest loginRequest)
-			throws JsonProcessingException {
+
+	@PostMapping("/entradas/misentradas")
+	public ResponseEntity<?> misEntradas(@RequestParam("mail") String mail, @RequestParam("password") String password) {
 		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<JwtUsuarioRespuesta> loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
+		// login contra usuarios directamente(mail, password);
+		ResponseEntity<JwtUsuarioRespuesta> loginResponse = null;
+		LoginRequest loginRequest = new LoginRequest();
+		loginRequest.setMail(mail);
+		loginRequest.setContrasenia(password);
 		try {
-			Entrada entrada = new Entrada();
-			entrada.setUsuarioId(loginResponse.getBody().getMail());
-			entrada.setEventoId("EventoPrueba");
-			
-			String registroBody = getBody(entrada);
-			HttpHeaders loginHeaders = getHeaders();
-			String token = "Bearer " + loginResponse.getBody().getToken();
-			loginHeaders.set("Authorization", token);
-			HttpEntity<String> loginEntity = new HttpEntity<String>(registroBody, loginHeaders);
-			
-			ResponseEntity<?> gResponse = restTemplate.postForEntity(REGISTRO_URL, loginEntity, String.class);
-			
-			return new ResponseEntity<>(gResponse, HttpStatus.OK);
-		} catch (Exception ex) {
+			loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
+		} catch (Exception e) {
 			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
 		}
-	}
-*/
-	@PostMapping("/entradas/greetings")
-	public ResponseEntity<?> greetings(@RequestBody LoginRequest loginRequest)
-			throws JsonProcessingException {
-		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<JwtUsuarioRespuesta> loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
 		try {
-			
-			HttpHeaders loginHeaders = getHeaders();
-			String token = "Bearer " + loginResponse.getBody().getToken();
-			loginHeaders.set("Authorization", token);
-			HttpEntity<String> loginEntity = new HttpEntity<String>(loginHeaders);
-			
-			ResponseEntity<?> gResponse = restTemplate.postForEntity(GREETINGS_URL, loginEntity, String.class);
-			
-			return new ResponseEntity<>(gResponse, HttpStatus.OK);
-		} catch (Exception ex) {
-			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
-		}
-	}
-	
-	  @PostMapping("/entradas/misentradas") 
-	  public ResponseEntity<?> misEntradas(@RequestParam("mail") String mail, @RequestParam("password") String password) {
-		  RestTemplate restTemplate = new RestTemplate();
-		//login contra usuarios directamente(mail, password);
-		  ResponseEntity<JwtUsuarioRespuesta> loginResponse = null;
-		  LoginRequest loginRequest = new LoginRequest();
-			loginRequest.setMail(mail);
-			loginRequest.setContrasenia(password);
-		  try {
-				loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
-			} catch (Exception e) {
-				return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
+			int userId = loginResponse.getBody().getId();
+			List<Entrada> entradas = new ArrayList();
+			entradas = repo.findByUsuarioId(userId);
+			List<EntradaRespuesta> entradasRespuesta = new ArrayList();
+
+			for (Entrada e : entradas) {
+				String id = e.getId();
+				Usuario u = usuarios.findById(e.getUsuarioId()).orElseThrow(UsuarioNoEncontradoException::new);
+				Evento ev = eventos.getEvento(e.getEventoId());
+				entradasRespuesta.add(new EntradaRespuesta(id, u, ev));
 			}
-	  //conseguir usuarioId 
-		  
-		  List<Entrada> entradas= new ArrayList(); 
-	  //entradas =
-	  //EntradasRepo.findByUsuarioId(); 
-		  //return new ResponseEntity<>(entradas, HttpStatus.OK);
-		  return new ResponseEntity<>("No se ha podido acceder al apartado Mis Entradas", HttpStatus.BAD_REQUEST);
-	  }
-	 
+			return new ResponseEntity<>(entradasRespuesta, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>("No se ha podido acceder al apartado Mis Entradas", HttpStatus.BAD_REQUEST);
+		}
+	}
 
 	private <T> String getBody(T request) throws JsonProcessingException {
 		return new ObjectMapper().writeValueAsString(request);

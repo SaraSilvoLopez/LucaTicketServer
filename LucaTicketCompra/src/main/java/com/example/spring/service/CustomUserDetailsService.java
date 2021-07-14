@@ -15,12 +15,12 @@ public class CustomUserDetailsService implements UserDetailsService{
 		
 	@Override
 	public UserDetails loadUserByUsername(String mail) throws UsernameNotFoundException {
-		return userEntityService.findByMail(mail)
+		return (UserDetails) userEntityService.findByMail(mail)
 					.orElseThrow(()-> new UsernameNotFoundException(mail + " no encontrado"));
 	}
 	
 	public UserDetails loadUserById(int id) throws UsernameNotFoundException {
-		return userEntityService.findById(id)
+		return (UserDetails) userEntityService.findById(id)
 				.orElseThrow(()-> new UsernameNotFoundException("Usuario con ID: " + id + " no encontrado"));
 	}
 
