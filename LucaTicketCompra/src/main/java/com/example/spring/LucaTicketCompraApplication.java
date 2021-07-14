@@ -42,7 +42,7 @@ public class LucaTicketCompraApplication {
 		return new RestTemplate();
 	}
 
-	
+	/*
 	@Bean
 	public UsuarioService usuarioService() {
 		return new UsuarioServiceRemote(USUARIOS_SERVICE_URL);
@@ -52,6 +52,6 @@ public class LucaTicketCompraApplication {
 	@Bean
 	public EventoService eventoService() {
 		return new EventoServiceRemote(EVENTOS_SERVICE_URL);
-	}
+	}*/
 	
 }

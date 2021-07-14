@@ -51,6 +51,7 @@ public class CompraController {
 	private static final String LOGIN_URL = "http://localhost:6666/entradas/login";
 	private static final String PAGO_URL = "http://localhost:8080/pago";
 	private static final String REGISTRO_URL = "http://localhost:6666/entradas/registro";
+	private static final String GREETINGS_URL = "http://localhost:9999/greetingAdmin";
 
 	@PostMapping("/entradas/compra")
 	public ResponseEntity<?> compra(@RequestParam("mail") String mail, @RequestParam("password") String password,
@@ -89,15 +90,23 @@ public class CompraController {
 				Entrada entrada = new Entrada();
 				entrada.setUsuarioId(loginResponse.getBody().getMail());
 				entrada.setEventoId(eventoId);
-				System.out.println(entrada);
+				
+				String registroBody = getBody(entrada);
+				String token = "Bearer " + loginResponse.getBody().getToken();
+				HttpHeaders registroHeaders = getHeaders();
+				registroHeaders.set("Authorization", token);
+				HttpEntity<String> registroEntity = new HttpEntity<String>(registroBody, registroHeaders);
+				registroResponse = restTemplate.postForEntity(REGISTRO_URL, registroEntity, Entrada.class);
+				
 				try {
-					registroResponse = addEntrada(entrada);
+					//registroResponse = addEntrada(entrada);
 					return new ResponseEntity<>("La compra se ha realizado con exito",HttpStatus.OK);
 				} catch (Exception e) {
 					return new ResponseEntity<>("No se ha podido realizar el registro de la entrada",
 							HttpStatus.BAD_REQUEST);
 				}
 			}
+			
 	
 	}
 		return new ResponseEntity<>("No se ha podido realizar la compra", HttpStatus.BAD_REQUEST);
@@ -135,13 +144,59 @@ public class CompraController {
 	@PostMapping("/entradas/registro")
 	public ResponseEntity<?> addEntrada(@RequestBody Entrada entrada) {
 		try {
+			
 			repo.save(entrada);
 			return ResponseEntity.ok(entrada);
 		} catch (Exception ex) {
 			return new ResponseEntity<>("No se ha podido realizar el registro de la entrada", HttpStatus.BAD_REQUEST);
 		}
 	}
-
+	
+	
+	/*
+	@PostMapping("/entradas/registro")
+	public ResponseEntity<?> addEntrada(@RequestBody LoginRequest loginRequest)
+			throws JsonProcessingException {
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<JwtUsuarioRespuesta> loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
+		try {
+			Entrada entrada = new Entrada();
+			entrada.setUsuarioId(loginResponse.getBody().getMail());
+			entrada.setEventoId("EventoPrueba");
+			
+			String registroBody = getBody(entrada);
+			HttpHeaders loginHeaders = getHeaders();
+			String token = "Bearer " + loginResponse.getBody().getToken();
+			loginHeaders.set("Authorization", token);
+			HttpEntity<String> loginEntity = new HttpEntity<String>(registroBody, loginHeaders);
+			
+			ResponseEntity<?> gResponse = restTemplate.postForEntity(REGISTRO_URL, loginEntity, String.class);
+			
+			return new ResponseEntity<>(gResponse, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
+		}
+	}
+*/
+	@PostMapping("/entradas/greetings")
+	public ResponseEntity<?> greetings(@RequestBody LoginRequest loginRequest)
+			throws JsonProcessingException {
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<JwtUsuarioRespuesta> loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
+		try {
+			
+			HttpHeaders loginHeaders = getHeaders();
+			String token = "Bearer " + loginResponse.getBody().getToken();
+			loginHeaders.set("Authorization", token);
+			HttpEntity<String> loginEntity = new HttpEntity<String>(loginHeaders);
+			
+			ResponseEntity<?> gResponse = restTemplate.postForEntity(GREETINGS_URL, loginEntity, String.class);
+			
+			return new ResponseEntity<>(gResponse, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
+		}
+	}
 	
 	  @PostMapping("/entradas/misentradas") 
 	  public ResponseEntity<?> misEntradas(@RequestParam("mail") String mail, @RequestParam("password") String password) {
