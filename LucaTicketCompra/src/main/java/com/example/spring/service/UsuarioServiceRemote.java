@@ -25,10 +25,10 @@ import com.example.spring.model.Usuario;
 public class UsuarioServiceRemote implements UsuarioService {
 
 private static final Logger logger = Logger.getLogger("");
-	
+	/*
 	@Autowired
 	protected RestTemplate restTemplate;
-
+*/
 	public static final String USUARIOS_SERVICE_URL = "http://USUARIOS-MICROSERVICE";
 
 	protected String serviceUrl = "http://localhost:2222";
@@ -37,6 +37,7 @@ private static final Logger logger = Logger.getLogger("");
 	}
 
 	public UsuarioServiceRemote(String serviceUrl) {
+		RestTemplate restTemplate = new RestTemplate();
 		this.serviceUrl = serviceUrl.startsWith("http") ? serviceUrl : "http://" + serviceUrl;
 		logger.info("-----[CONSTRUCTOR] serviceurl: " + this.serviceUrl);
 	}
@@ -52,6 +53,7 @@ private static final Logger logger = Logger.getLogger("");
 
 	@Override
 	public Optional<Usuario> findByMail(String Mail) {
+		RestTemplate restTemplate = new RestTemplate();
 		logger.info("----- [findByMail]: serviceurl: " + this.serviceUrl);
 		Optional<Usuario> usuario = Optional.of(restTemplate.getForObject(serviceUrl + "/{mail}", Usuario.class));
 		return usuario;

@@ -24,5 +24,5 @@ public class PagoRequest {
 	@NotBlank
 	private String nombreEvento;
 	@NotBlank
-	private int importe;
+	private double importe;
 }

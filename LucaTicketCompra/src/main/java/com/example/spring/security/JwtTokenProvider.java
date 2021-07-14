@@ -50,7 +50,6 @@ public class JwtTokenProvider {
 
 	
 	public int getUserIdFromJWT(String token) {
-		System.out.println("token1");
 		Claims claims = Jwts.parser()
 							.setSigningKey(Keys.hmacShaKeyFor(jwtSecreto.getBytes()))
 							.parseClaimsJws(token)
@@ -62,7 +61,6 @@ public class JwtTokenProvider {
 	
 	
 	public boolean validateToken(String authToken) {
-		System.out.println("vali");
 		try {
 			Jwts.parser().setSigningKey(jwtSecreto.getBytes()).parseClaimsJws(authToken);
 			return true;

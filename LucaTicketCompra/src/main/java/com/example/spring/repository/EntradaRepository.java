@@ -1,8 +1,11 @@
 package com.example.spring.repository;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.example.spring.model.Entrada;
+import com.example.spring.model.Evento;
 
 /**
  * @Project LucaTicketCompra
@@ -16,5 +19,7 @@ import com.example.spring.model.Entrada;
  * @version 1.0
  */
 public interface EntradaRepository extends MongoRepository<Entrada, String> {
+	
+	List<Entrada> findByUsuarioId(int usuarioId);
 
 }

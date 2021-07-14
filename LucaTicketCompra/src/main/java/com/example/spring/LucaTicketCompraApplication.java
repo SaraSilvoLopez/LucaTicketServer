@@ -35,14 +35,14 @@ public class LucaTicketCompraApplication {
 		SpringApplication.run(LucaTicketCompraApplication.class, args);
 	}
 	
-	
+	/*
 	@Bean
 	@LoadBalanced
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
 
-	/*
+	
 	@Bean
 	public UsuarioService usuarioService() {
 		return new UsuarioServiceRemote(USUARIOS_SERVICE_URL);

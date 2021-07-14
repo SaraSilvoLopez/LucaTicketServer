@@ -23,13 +23,13 @@ import com.example.spring.model.Evento;
 public class EventoServiceRemote implements EventoService {
 
 private static final Logger logger = Logger.getLogger("");
-	
+	/*
 	@Autowired
 	protected RestTemplate restTemplate;
-
+*/
 	public static final String EVENTOS_SERVICE_URL = "http://EVENTO-MICROSERVICE";
 	
-	protected String serviceUrl = "http://EVENTO-MICROSERVICE";
+	protected String serviceUrl = "http://localhost:3333";
 	
 	public EventoServiceRemote() {
 	}
@@ -41,8 +41,9 @@ private static final Logger logger = Logger.getLogger("");
 
 	@Override
 	public Evento getEvento(String id) {
+		RestTemplate restTemplate = new RestTemplate();
 		logger.info("----- [getEvento]: serviceurl: " + this.serviceUrl);
-		Evento evento = restTemplate.getForObject(serviceUrl + "/eventos/{id}", Evento.class);
+		Evento evento = restTemplate.getForObject(serviceUrl + "/eventos/" + id, Evento.class);
 		return evento;
 	}
 

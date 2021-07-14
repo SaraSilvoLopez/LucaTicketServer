@@ -37,39 +37,36 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		System.out.println(1);
+
 		try {
 			String token = getJwtFromRequest(request);
-			System.out.println(2);
+		
 			if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
 				int userId = tokenProvider.getUserIdFromJWT(token);
-				System.out.println(3);
-				Usuario usuario = (Usuario) userDetailsService.findById(userId).orElseThrow(UsuarioNoEncontradoException::new);
+			
+				Usuario usuario = userDetailsService.findById(userId).orElseThrow(UsuarioNoEncontradoException::new);
 				List<SimpleGrantedAuthority> roles = new ArrayList<SimpleGrantedAuthority>();
 				roles.add(new SimpleGrantedAuthority("ROLE_" + usuario.getRol()));
 				Collection<? extends GrantedAuthority> authorities = roles;
-				System.out.println(4);
+				
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(usuario,
 						usuario.getRol(), authorities);
 				authentication.setDetails(new WebAuthenticationDetails(request));
-System.out.println(5);
+
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 
 			}
 		} catch (Exception ex) {
-			System.out.println("error");
 			log.info("No se ha podido establecer la autenticación de usuario en el contexto de seguridad");
 		}
-System.out.println(6);
+
 		filterChain.doFilter(request, response);
-System.out.println(7);
+
 	}
 
 	private String getJwtFromRequest(HttpServletRequest request) {
-		System.out.println("get");
 		String bearerToken = request.getHeader(JwtTokenProvider.TOKEN_HEADER);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtTokenProvider.TOKEN_PREFIX)) {
-			System.out.println("getº1");
 			return bearerToken.substring(JwtTokenProvider.TOKEN_PREFIX.length(), bearerToken.length());
 		}
 		return null;
