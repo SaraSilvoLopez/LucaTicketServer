@@ -27,7 +27,9 @@ private static final Logger logger = Logger.getLogger("");
 	@Autowired
 	protected RestTemplate restTemplate;
 
-	protected String serviceUrl;
+	public static final String EVENTOS_SERVICE_URL = "http://EVENTO-MICROSERVICE";
+	
+	protected String serviceUrl = "http://EVENTO-MICROSERVICE";
 	
 	public EventoServiceRemote() {
 	}

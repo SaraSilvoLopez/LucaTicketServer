@@ -28,7 +28,7 @@ public class JwtTokenProvider {
 
 	@Value("${jwt.token-expiration}")
 	private int jwtDuracionTokenEnSegundos;
-/*
+
 	public String generateToken(Authentication authentication) {
 		
 		Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -47,9 +47,10 @@ public class JwtTokenProvider {
 				.compact();
 
 	}
-*/	
+
 	
 	public int getUserIdFromJWT(String token) {
+		System.out.println("token1");
 		Claims claims = Jwts.parser()
 							.setSigningKey(Keys.hmacShaKeyFor(jwtSecreto.getBytes()))
 							.parseClaimsJws(token)
@@ -61,7 +62,7 @@ public class JwtTokenProvider {
 	
 	
 	public boolean validateToken(String authToken) {
-		
+		System.out.println("vali");
 		try {
 			Jwts.parser().setSigningKey(jwtSecreto.getBytes()).parseClaimsJws(authToken);
 			return true;

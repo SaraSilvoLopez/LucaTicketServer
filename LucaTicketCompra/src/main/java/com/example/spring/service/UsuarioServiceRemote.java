@@ -29,7 +29,9 @@ private static final Logger logger = Logger.getLogger("");
 	@Autowired
 	protected RestTemplate restTemplate;
 
-	protected String serviceUrl;
+	public static final String USUARIOS_SERVICE_URL = "http://USUARIOS-MICROSERVICE";
+
+	protected String serviceUrl = "http://localhost:2222";
 	
 	public UsuarioServiceRemote() {
 	}
@@ -40,21 +42,19 @@ private static final Logger logger = Logger.getLogger("");
 	}
 
 	@Override
-	public Usuario getUsuario(int id) {
-		logger.info("----- [getUsuario]: serviceurl: " + this.serviceUrl);
-		Usuario usuario = restTemplate.getForObject(serviceUrl + "/usuarios/{id}", Usuario.class);
+	public Optional<Usuario> findById(int id) {
+		RestTemplate restTemplate = new RestTemplate();
+		logger.info("----- [findById]: serviceurl: " + this.serviceUrl +"/"+ id);
+		Optional<Usuario> usuario = Optional.of(restTemplate.getForObject(serviceUrl +"/"+ String.valueOf(id), Usuario.class));
 		return usuario;
 	}
-
-	@Override
-	public Optional<Usuario> findById(int id) {
-		return null;
-	}
+	
 
 	@Override
 	public Optional<Usuario> findByMail(String Mail) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.info("----- [findByMail]: serviceurl: " + this.serviceUrl);
+		Optional<Usuario> usuario = Optional.of(restTemplate.getForObject(serviceUrl + "/{mail}", Usuario.class));
+		return usuario;
 	}
 
 }
