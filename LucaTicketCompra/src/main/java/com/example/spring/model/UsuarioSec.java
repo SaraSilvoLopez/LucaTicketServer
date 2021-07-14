@@ -1,28 +1,22 @@
 package com.example.spring.model;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
 
 /**
  * @Project LucaTicketUsuarioService
  *
  * @ClassName Usuario
  *
- * @author Jennifer Pérez y Sara Silvo
+ * @author Patricia García y Usoa Larrarte
  *
  * @date 7 jul. 2021
  * 
@@ -30,14 +24,15 @@ import lombok.NoArgsConstructor;
  */
 
 
-/**
- * Crea la clase Usuario
- * Utiliza Lombok para crear los metodos get, set y los constructores vacio y con argumentos 
- *
- */
 @Data
-
 public class UsuarioSec extends Usuario implements UserDetails {
+
+	/**
+	 * Atributo serialVersionUID
+	 * 
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -46,19 +41,15 @@ public class UsuarioSec extends Usuario implements UserDetails {
 		return roles;
 	}
 	
-
-
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
 	}
 
-
 	@Override
 	public boolean isAccountNonLocked() {
 		return true;
 	}
-
 
 	@Override
 	public boolean isCredentialsNonExpired() {

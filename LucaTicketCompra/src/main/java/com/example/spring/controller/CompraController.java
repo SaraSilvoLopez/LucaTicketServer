@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +24,11 @@ import com.example.spring.model.EntradaRespuesta;
 import com.example.spring.model.Evento;
 import com.example.spring.model.Usuario;
 import com.example.spring.repository.EntradaRepository;
-import com.example.spring.security.JwtTokenProvider;
 import com.example.spring.security.JwtUsuarioRespuesta;
 import com.example.spring.security.LoginRequest;
 import com.example.spring.security.PagoRequest;
-import com.example.spring.service.EventoService;
-import com.example.spring.service.UsuarioService;
+import com.example.spring.service.EventoClient;
+import com.example.spring.service.UsuarioClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -39,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  * @ClassName CompraController
  *
- * @author Usoa Larrarte
+ * @author Patricia García y Usoa Larrarte
  *
  * @date 10 jul. 2021
  * 
@@ -54,19 +52,31 @@ public class CompraController {
 	@Autowired
 	private EntradaRepository repo;
 	@Autowired
-	private EventoService eventos;
+	private EventoClient eventos;
 	@Autowired
-	private UsuarioService usuarios;
+	private UsuarioClient usuarios;
 
 	private static final String LOGIN_USUARIO_URL = "http://localhost:2222/usuarios/login";
 	private static final String LOGIN_URL = "http://localhost:6666/entradas/login";
 	private static final String PAGO_URL = "http://localhost:8080/pago";
 	private static final String REGISTRO_URL = "http://localhost:6666/entradas/registro";
 
+	/**
+	 * Método de compra que auna los métodos de login, pago y registro
+	 * Esta petición es de acceso libre
+	 * 
+	 * @param mail
+	 * @param password
+	 * @param eventoId
+	 * @param numTarjeta
+	 * @return ResponseEntity<?>
+	 * @throws JsonProcessingException
+	 */
 	@PostMapping("/entradas/compra")
 	public ResponseEntity<?> compra(@RequestParam("mail") String mail, @RequestParam("password") String password,
 			@RequestParam("eventoId") String eventoId, @RequestParam("numTarjeta") int numTarjeta)
 			throws JsonProcessingException {
+		logger.info("---- Accediendo al método compra");
 
 		RestTemplate restTemplate = new RestTemplate();
 
@@ -125,8 +135,19 @@ public class CompraController {
 		return new ResponseEntity<>("No se ha podido realizar la compra", HttpStatus.BAD_REQUEST);
 	}
 
+	/**
+	 * Método que realiza la llamada a URL de autenticazión usuarios/login. Se obtendrá el token necesario para la fase 
+	 * de registro de la compra de la entrada.
+	 * Esta petición es de acceso libre
+	 * 
+	 * @param loginRequest (este parámetro incluye los atributos mail y password)
+	 * @return ResponseEntity<?>
+	 * @throws JsonProcessingException
+	 */
 	@PostMapping("/entradas/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) throws JsonProcessingException {
+		logger.info("---- Accediendo al método login");
+		
 		RestTemplate restTemplate = new RestTemplate();
 		try {
 			String loginBody = getBody(loginRequest);
@@ -140,8 +161,18 @@ public class CompraController {
 		}
 	}
 
+	/**
+	 * Método que realiza la llamada a la pasarela de pagos para su aceptación.
+	 * Esta petición es de acceso libre
+	 * 
+	 * @param pagoRequest (este parámetro incluye los atributos nombre, apellido, numTarjeta, 
+	 * nombreEvento e importe)
+	 * @return ResponseEntity<?>
+	 */
 	@PostMapping("/entradas/pago")
 	public ResponseEntity<?> pago(@RequestBody PagoRequest pagoRequest) {
+		logger.info("---- Accediendo al método pago");
+		
 		RestTemplate restTemplate = new RestTemplate();
 		try {
 			String pagoBody = getBody(pagoRequest);
@@ -154,8 +185,17 @@ public class CompraController {
 		}
 	}
 
+	/**
+	 * Método que realiza el registro de la entrada.
+	 * Esta petición necesita un token válido para su ejecución.
+	 * 
+	 * @param entrada
+	 * @return ResponseEntity<?>
+	 */
 	@PostMapping("/entradas/registro")
 	public ResponseEntity<?> addEntrada(@RequestBody Entrada entrada) {
+		logger.info("---- Accediendo al método addEntrada");
+		
 		try {
 			repo.save(entrada);
 			return ResponseEntity.ok(entrada);
@@ -164,9 +204,20 @@ public class CompraController {
 		}
 	}
 
+	/**
+	 * Método que devuelve el dato de las entradas que el usuario dueño del mail haya comprado.
+	 * Esta petición es de acceso libre pero realiza un login antes de devolver la respuesta.
+	 * 
+	 * @param mail
+	 * @param password
+	 * @return ResponseEntity<?>
+	 */
 	@PostMapping("/entradas/misentradas")
 	public ResponseEntity<?> misEntradas(@RequestParam("mail") String mail, @RequestParam("password") String password) {
+		logger.info("---- Accediendo al método misEntradas");
+		
 		RestTemplate restTemplate = new RestTemplate();
+		
 		// login contra usuarios directamente(mail, password);
 		ResponseEntity<JwtUsuarioRespuesta> loginResponse = null;
 		LoginRequest loginRequest = new LoginRequest();
