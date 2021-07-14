@@ -1,8 +1,18 @@
 package com.example.spring.model;
 
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
+/**
+ * @Project LucaTicketCompra
+ *
+ * @ClassName UsuarioDtoConverter
+ *
+ * @author Patricia García y Usoa Larrarte
+ *
+ * @date 14 jul. 2021
+ * 
+ * @version 1.0
+ */
 @Component
 public class UsuarioDtoConverter {
 

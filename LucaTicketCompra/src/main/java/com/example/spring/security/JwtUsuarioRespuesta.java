@@ -1,7 +1,5 @@
 package com.example.spring.security;
 
-import java.time.LocalDateTime;
-import java.util.Set;
 import com.example.spring.model.UsuarioDto;
 import lombok.Builder;
 import lombok.Getter;

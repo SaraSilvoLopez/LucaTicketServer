@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService{
 
-	private final UsuarioServiceRemote userEntityService;
+	private final UsuarioClient userEntityService;
 		
 	@Override
 	public UserDetails loadUserByUsername(String mail) throws UsernameNotFoundException {

@@ -20,8 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.spring.exception.UsuarioNoEncontradoException;
 import com.example.spring.model.Usuario;
-import com.example.spring.service.CustomUserDetailsService;
-import com.example.spring.service.UsuarioService;
+import com.example.spring.service.UsuarioClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -32,7 +31,7 @@ import lombok.extern.java.Log;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider tokenProvider;
-	private final UsuarioService userDetailsService;
+	private final UsuarioClient userDetailsService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
