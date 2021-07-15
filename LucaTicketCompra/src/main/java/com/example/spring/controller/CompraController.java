@@ -57,9 +57,9 @@ public class CompraController {
 	private UsuarioClient usuarios;
 
 	private static final String LOGIN_USUARIO_URL = "http://localhost:2222/usuarios/login";
-	private static final String LOGIN_URL = "http://localhost:6666/entradas/login";
+	private static final String LOGIN_URL = "http://localhost:4444/entradas/login";
 	private static final String PAGO_URL = "http://localhost:8080/pago";
-	private static final String REGISTRO_URL = "http://localhost:6666/entradas/registro";
+	private static final String REGISTRO_URL = "http://localhost:4444/entradas/registro";
 
 	/**
 	 * Método de compra que auna los métodos de login, pago y registro

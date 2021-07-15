@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  *
  * @ClassName SwaggerConfig
  *
- * @author Sara Silvo
+ * @author Usoa Larrarte
  *
  * @date 10 jul. 2021
  * 
@@ -26,7 +26,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class SwaggerConfig {
 
-	
+	/**
+	 * La libreria Swagger permite autodocumentar los servicios a través de los metadatos. 
+	 * El metodo Docket selecciona los path que va a documentar y genera una url que muestra
+	 * toda la api documentada con el estandar oatuh.
+	 */
 	@Bean
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.any())
