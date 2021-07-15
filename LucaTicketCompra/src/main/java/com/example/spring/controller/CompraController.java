@@ -57,7 +57,7 @@ public class CompraController {
 	private EventoClient eventos;
 	@Autowired
 	private UsuarioClient usuarios;
-	
+
 	private static final String PAGO_URL = "http://localhost:8080/pago";
 
 	/**

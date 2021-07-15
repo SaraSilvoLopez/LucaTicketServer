@@ -19,7 +19,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  *
  * @ClassName SwaggerConfig
  *
- * @author Sara Silvo
+ * @author Usoa Larrarte
  *
  * @date 10 jul. 2021
  * 
