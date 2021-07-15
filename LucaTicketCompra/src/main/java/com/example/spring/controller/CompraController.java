@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +32,7 @@ import com.example.spring.service.EventoClient;
 import com.example.spring.service.UsuarioClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 /**
  * @Project LucaTicketCompra
@@ -56,10 +58,7 @@ public class CompraController {
 	@Autowired
 	private UsuarioClient usuarios;
 
-	private static final String LOGIN_USUARIO_URL = "http://localhost:2222/usuarios/login";
-	private static final String LOGIN_URL = "http://localhost:4444/entradas/login";
 	private static final String PAGO_URL = "http://localhost:8080/pago";
-	private static final String REGISTRO_URL = "http://localhost:4444/entradas/registro";
 
 	/**
 	 * Método de compra que auna los métodos de login, pago y registro
@@ -82,7 +81,6 @@ public class CompraController {
 
 		ResponseEntity<JwtUsuarioRespuesta> loginResponse = null;
 		ResponseEntity<?> pagoResponse = null;
-		ResponseEntity<?> registroResponse = null;
 
 		// llamada a usuarios para el login
 		LoginRequest loginRequest = new LoginRequest();
@@ -90,7 +88,7 @@ public class CompraController {
 		loginRequest.setContrasenia(password);
 
 		try {
-			loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
+			loginResponse = (ResponseEntity<JwtUsuarioRespuesta>) login(loginRequest);
 		} catch (Exception e) {
 			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
 		}
@@ -118,12 +116,8 @@ public class CompraController {
 				entrada.setEventoId(eventoId);
 
 				try {
-					String registroBody = getBody(entrada);
 					String token = "Bearer " + loginResponse.getBody().getToken();
-					HttpHeaders registroHeaders = getHeaders();
-					registroHeaders.set("Authorization", token);
-					HttpEntity<String> registroEntity = new HttpEntity<String>(registroBody, registroHeaders);
-					registroResponse = restTemplate.postForEntity(REGISTRO_URL, registroEntity, Entrada.class);
+					ResponseEntity<?> registroResponse = registro(token, entrada);
 					return new ResponseEntity<>("La compra se ha realizado con exito", HttpStatus.OK);
 				} catch (Exception e) {
 					return new ResponseEntity<>("No se ha podido realizar el registro de la entrada",
@@ -147,14 +141,9 @@ public class CompraController {
 	@PostMapping("/entradas/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) throws JsonProcessingException {
 		logger.info("---- Accediendo al método login");
-		
-		RestTemplate restTemplate = new RestTemplate();
+	
 		try {
-			String loginBody = getBody(loginRequest);
-			HttpHeaders loginHeaders = getHeaders();
-			HttpEntity<String> loginEntity = new HttpEntity<String>(loginBody, loginHeaders);
-			JwtUsuarioRespuesta response = restTemplate.postForObject(LOGIN_USUARIO_URL, loginEntity,
-					JwtUsuarioRespuesta.class);
+			JwtUsuarioRespuesta response = usuarios.login(loginRequest);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
@@ -177,7 +166,7 @@ public class CompraController {
 		try {
 			String pagoBody = getBody(pagoRequest);
 			HttpHeaders pagoHeaders = getHeaders();
-			HttpEntity<String> pagoEntity = new HttpEntity<String>(pagoBody, pagoHeaders);
+			HttpEntity<String> pagoEntity = new HttpEntity<String>(pagoBody, pagoHeaders);			
 			String response = restTemplate.postForObject(PAGO_URL, pagoEntity, String.class);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception ex) {
@@ -193,7 +182,7 @@ public class CompraController {
 	 * @return ResponseEntity<?>
 	 */
 	@PostMapping("/entradas/registro")
-	public ResponseEntity<?> addEntrada(@RequestBody Entrada entrada) {
+	public ResponseEntity<?> registro(@RequestHeader("token") String token, @RequestBody Entrada entrada){
 		logger.info("---- Accediendo al método addEntrada");
 		
 		try {
@@ -215,16 +204,14 @@ public class CompraController {
 	@PostMapping("/entradas/misentradas")
 	public ResponseEntity<?> misEntradas(@RequestParam("mail") String mail, @RequestParam("password") String password) {
 		logger.info("---- Accediendo al método misEntradas");
-		
-		RestTemplate restTemplate = new RestTemplate();
-		
+				
 		// login contra usuarios directamente(mail, password);
 		ResponseEntity<JwtUsuarioRespuesta> loginResponse = null;
 		LoginRequest loginRequest = new LoginRequest();
 		loginRequest.setMail(mail);
 		loginRequest.setContrasenia(password);
 		try {
-			loginResponse = restTemplate.postForEntity(LOGIN_URL, loginRequest, JwtUsuarioRespuesta.class);
+			loginResponse = (ResponseEntity<JwtUsuarioRespuesta>) login(loginRequest);
 		} catch (Exception e) {
 			return new ResponseEntity<>("No se ha podido realizar el login", HttpStatus.BAD_REQUEST);
 		}

@@ -8,6 +8,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.spring.model.Evento;
 
 
+/**
+ * @Project LucaTicketCompra
+ *
+ * @ClassName EventoClient
+ *
+ * @author Usoa Larrarte
+ *
+ * @date 14 jul. 2021
+ * 
+ * @version 1.0
+ */
 @FeignClient(name= "evento-microservice")
 @RequestMapping(value="eventos")
 public interface EventoClient {

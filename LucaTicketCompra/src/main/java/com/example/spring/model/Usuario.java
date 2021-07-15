@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @Project LucaTicketUsuarioService
+ * @Project LucaTicketCompra
  *
  * @ClassName Usuario
  *

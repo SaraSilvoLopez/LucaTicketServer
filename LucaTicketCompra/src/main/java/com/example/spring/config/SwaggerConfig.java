@@ -11,7 +11,6 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-
 /**
  * @Project LucaTicketCompra
  *
@@ -19,11 +18,10 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  *
  * @author 
  *
- * @date 10 jul. 2021
+ * @date 7 jul. 2021
  * 
  * @version 1.0
  */
-
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
