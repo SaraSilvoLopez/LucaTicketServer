@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
  *
  * @author Usoa Larrarte
  *
- * @date 10 jul. 2021
+ * @date 14 jul. 2021
  * 
  * @version 1.0
  */
