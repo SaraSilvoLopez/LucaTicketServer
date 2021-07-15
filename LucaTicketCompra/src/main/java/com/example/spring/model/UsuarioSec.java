@@ -12,13 +12,13 @@ import lombok.Data;
 
 
 /**
- * @Project LucaTicketUsuarioService
+ * @Project LucaTicketCompra
  *
  * @ClassName Usuario
  *
  * @author Patricia García y Usoa Larrarte
  *
- * @date 7 jul. 2021
+ * @date 14 jul. 2021
  * 
  * @version 1.0
  */
